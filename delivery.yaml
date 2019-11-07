@@ -1,0 +1,9 @@
+version: "2017-09-20"
+pipeline:
+  - id: build
+    overlay: ci/clojure
+    type: script
+    commands:
+      - desc: Run unit tests (with coverage; fail if coverage too low)
+        cmd: |
+          lein cloverage --fail-threshold 80
