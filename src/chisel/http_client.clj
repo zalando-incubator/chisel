@@ -68,8 +68,9 @@
         (let [msg (or (.getMessage exception) "none")]
           (-> span
               (plog/log-span
-                :msg "Remote call failed"
-                :error-msg msg)
+                :service service-name
+                :route route-name)
+              (plog/log-span exception)
               (plog/tag-span "error" true)
               (plog/finish-span))
           (log/error :msg "Remote call failed"
@@ -125,7 +126,7 @@
         retries          (get opts ::retries 0)
         retry            (get opts ::retry false)
         span             (-> (plog/span route-name (trace/current-span))
-                             (plog/tag-span "http.method" (str method)
+                             (plog/tag-span "http.method" (string/upper-case (name method))
                                             "http.url" location
                                             "retries" retries
                                             "retry" retry
@@ -154,7 +155,10 @@
         (mark-meter [metric-prefix route-name "opened"])
         (-> span
             (plog/log-span
-              :msg "Circuit Breaker opened")
+              :message "Circuit Breaker opened"
+              :service service-name
+              :route route-name
+              :event "cb-open")
             (plog/tag-span "error" true)
             (plog/finish-span))
         (if fallback-handler
