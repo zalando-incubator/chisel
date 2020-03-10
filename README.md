@@ -37,7 +37,7 @@ If you need a good async cache to match the needs of an async web server, we rec
 
 ## Installation
 
-Add `[zalando/chisel "1.0.0"]` to the dependency section in your project.clj file.
+Add `[zalando/chisel "0.1.0"]` to the dependency section in your project.clj file.
 
 ## Quick Intro to [Pedestal][pedestal]
 
