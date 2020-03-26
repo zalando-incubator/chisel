@@ -39,7 +39,4 @@ jobs:
           key: v1-dependencies-{{ checksum "project.clj" }}
 
       # run tests!
-      - run: lein with-profile dev cloverage --codecov
-
-      # upload coverage
-      - run: bash <(curl -s https://codecov.io/bash)      
+      - run: lein test
