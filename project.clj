@@ -1,4 +1,4 @@
-(defproject org.zalando/chisel "1.0.0"
+(defproject org.zalando/chisel "0.1.0"
   :description "Collection of awesome practices for fast and lightweight web services"
   :url "https://github.com/zalando/chisel"
 

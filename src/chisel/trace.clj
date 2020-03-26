@@ -28,6 +28,9 @@
      (try
        (binding [*span* span#]
          ~@body)
+       (catch Throwable ex#
+         (plog/tag-span span# "error" true)
+         (throw ex#))
        (finally
          (plog/finish-span span#)))))
 
