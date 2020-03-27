@@ -4,7 +4,8 @@
             [io.pedestal.interceptor.chain :as chain]
             [io.pedestal.interceptor.trace :as trace]
             [chisel.correlation-ctx :as correlation-ctx]
-            [chisel.async-utils :as async]))
+            [chisel.async-utils :as async]
+            [chisel.logging :as log]))
 
 ;; This needs to be bounded before executing a handler
 (def ^:dynamic *span* nil)
@@ -21,6 +22,12 @@
   []
   *span*)
 
+(defn log-span [& args]
+  (try
+    (apply plog/log-span args)
+    (catch Exception e
+      (log/warn :exception e))))
+
 (defmacro with-span
   "Wrap a calculation in a new span"
   [span-name & body]
@@ -29,6 +36,7 @@
        (binding [*span* span#]
          ~@body)
        (catch Throwable ex#
+         (log-span span# ex#)
          (plog/tag-span span# "error" true)
          (throw ex#))
        (finally
@@ -44,18 +52,21 @@
     {:name  ::tracing-ctx
      :enter (fn [context]
               (correlation-ctx/with-context context
-                (if-let [span (::plog/span context)]
-                  (-> context
-                      (assoc ::plog/span (plog/tag-span span (tracing-tags-fn context)))
-                      (assoc-in [:request ::span] span))
-                  context)))
+                                            (if-let [span (::plog/span context)]
+                                              (-> context
+                                                  (assoc ::plog/span (plog/tag-span span (tracing-tags-fn context)))
+                                                  (assoc-in [:request ::span] span))
+                                              context)))
      :error (fn [context throwable]
               (if-let [span (::plog/span context)]
-                (assoc context ::plog/span (-> span
-                                               (plog/tag-span "http.status_code"
-                                                              (error-status-fn context throwable))
-                                               (plog/tag-span "error" true))
-                               ::chain/error throwable)
+                (let [error-span       {"error" true}
+                      status-code      (error-status-fn context throwable)
+                      status-code-span {"http.status_code" status-code}
+                      spans-to-tag     (if (= 500 status-code)
+                                         (merge status-code-span error-span)
+                                         status-code-span)]
+                  (assoc context ::plog/span (plog/tag-span span spans-to-tag)
+                                 ::chain/error throwable))
                 (assoc context ::chain/error throwable)))}))
 
 (def tracing-interceptor (trace/tracing-interceptor))
