@@ -67,10 +67,10 @@
       (binding [correlation-ctx/*ctx* captured-ctx]         ; and restore it in callback
         (let [msg (or (.getMessage exception) "none")]
           (-> span
-              (plog/log-span
+              (trace/log-span
                 :service service-name
                 :route route-name)
-              (plog/log-span exception)
+              (trace/log-span exception)
               (plog/tag-span "error" true)
               (plog/finish-span))
           (log/error :msg "Remote call failed"
@@ -154,7 +154,7 @@
       (do
         (mark-meter [metric-prefix route-name "opened"])
         (-> span
-            (plog/log-span
+            (trace/log-span
               :message "Circuit Breaker opened"
               :service service-name
               :route route-name
