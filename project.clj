@@ -60,6 +60,16 @@
                   [:name "Anton Chebotaev"]
                   [:email "anton.chebotaev@zalando.de"]
                   [:role "Maintainer"]
+                  [:timezone "+1"]]
+                 [:developer {:id "cogitor"}
+                  [:name "Emil Varga"]
+                  [:email "emil.varga@zalando.de"]
+                  [:role "Maintainer"]
+                  [:timezone "+1"]]
+                 [:developer {:id "avichalp"}
+                  [:name "Avichal Pandey"]
+                  [:email "avichal.pandey@zalando.de"]
+                  [:role "Maintainer"]
                   [:timezone "+1"]]]
 
   :deploy-repositories {"releases" {:url "https://oss.sonatype.org/service/local/staging/deploy/maven2/" :creds :gpg}
